@@ -37,6 +37,10 @@ How to build
 
    $ cp ./configs/atheros.conf .config
 
+   or
+
+   $ cp ./configs/x86-generic.conf .config
+
  * check the buildsystem config
 
    $ make oldconfig
