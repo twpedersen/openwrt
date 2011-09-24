@@ -1,3 +1,57 @@
+(Original README from OpenWrt below)
+
+ - - 8< - - - - - 8< - - - - - 8< - - - - - 8< - - - - - 8< - - - - - 8< - - 
+
+Wireless Battle Mesh firmware customizations
+============================================
+
+How to build
+------------
+
+ * checkout our OpenWrt repo
+
+   $ git clone git://github.com/battlemesh/openwrt.git
+
+ * checkout our OpenWrt packages repo
+
+   $ git clone git://github.com/battlemesh/openwrt-packages.git
+
+ * get into the OpenWrt source tree
+
+   $ cd openwrt
+
+ * update the package feeds
+
+   $ scripts/feeds update
+
+ * install packages
+
+   $ scripts/feeds install -d y babeld
+   $ scripts/feeds install -d y batmand
+   $ scripts/feeds install -d y bmx6
+   $ scripts/feeds install -d y bmx6-uci-config
+   $ scripts/feeds install -d y kmod-batman-adv
+   $ scripts/feeds install -d y olsrd
+
+ * copy desired platform config file
+
+   $ cp ./configs/atheros.conf .config
+
+ * check the buildsystem config
+
+   $ make oldconfig
+
+ * follow OpenWrt build instructions
+
+   $ make  
+
+
+ Randomly Yours,
+ --
+ Nico <nico@openwrt.org>
+
+ - - 8< - - - - - 8< - - - - - 8< - - - - - 8< - - - - - 8< - - - - - 8< - - 
+
 This is the buildsystem for the OpenWrt Linux distribution
 
 Please use "make menuconfig" to configure your appreciated
