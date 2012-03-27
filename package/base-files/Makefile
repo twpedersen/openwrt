@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2007-2011 OpenWrt.org
+# Copyright (C) 2007-2012 OpenWrt.org
 # Copyright (C) 2010 Vertical Communications
 #
 # This is free software, licensed under the GNU General Public License v2.
@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=base-files
-PKG_RELEASE:=81.wbm5.1
+PKG_RELEASE:=104.wbm5.1
 
 PKG_FILE_DEPENDS:=$(PLATFORM_DIR)/ $(GENERIC_PLATFORM_DIR)/base-files/
 PKG_BUILD_DEPENDS:=opkg/host
@@ -34,6 +34,7 @@ endif
 define Package/base-files
   SECTION:=base
   CATEGORY:=Base system
+  DEPENDS:=+!USE_NETIFD:base-files-network +USE_NETIFD:netifd
   TITLE:=Base filesystem for OpenWrt
   URL:=http://openwrt.org/
   VERSION:=$(PKG_RELEASE)-$(REVISION)
@@ -65,6 +66,11 @@ define Package/base-files/description
  This package contains a base filesystem and system scripts for OpenWrt.
 endef
 
+define Package/base-files/config
+  config USE_NETIFD
+    bool "Use netifd instead of the old network init scripts (experimental!)"
+	default n
+endef
 
 define Package/gcc/Default
   SECTION:=libs
@@ -449,10 +455,9 @@ define Package/base-files/install
 	)
 # Form valid /etc/shadow entries, by copying the user:pw pairs
 # from /etc/passwd, and adding on pw change data
-	$(if $(CONFIG_BUSYBOX_CONFIG_FEATURE_SHADOWPASSWDS), \
-		cut -d ':' -f 1-2 $(1)/etc/passwd > $(1)/etc/shadow; \
-		$(SED) 's/$$$$/:13848:0:99999:7:::/' $(1)/etc/shadow \
-	)
+	cut -d ':' -f 1-2 $(1)/etc/passwd > $(1)/etc/shadow; \
+	$(SED) 's/$$$$/:0:0:99999:7:::/' $(1)/etc/shadow
+
 	$(SED) 's,$$$$R,$(REVISION),g' $(1)/etc/banner
 	mkdir -p $(1)/CONTROL
 	mkdir -p $(1)/dev

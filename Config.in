@@ -145,7 +145,7 @@ menu "Global build settings"
 		bool "Compile with full language support"
 		help
 		  When this option is enabled, packages are built with the full versions of iconv and GNU gettext
-		  instead of the default OpenWrt stubs.
+		  instead of the default OpenWrt stubs. If uClibc is used, it is also built with locale support.
 
 	config SHADOW_PASSWORDS
 		bool
@@ -229,7 +229,20 @@ menu "Global build settings"
 
 	config KERNEL_MAGIC_SYSRQ
 		bool "Compile the kernel with SysRq support"
+		default y
+
+	config KERNEL_ELF_CORE
+		bool "Enable process core dump support"
+		default y
+
+	config KERNEL_PROVE_LOCKING
+		bool "Enable kernel lock checking"
+		select KERNEL_DEBUG_KERNEL
 		default n
+
+	config KERNEL_PRINTK_TIME
+		bool "Enable printk timestamps"
+		default y
 
 	comment "Package build options"
 
@@ -429,6 +442,14 @@ menuconfig DEVEL
 		bool "Enable log files during build process" if DEVEL
 		help
 		  If enabled log files will be written to the ./log directory
+
+	config SRC_TREE_OVERRIDE
+		bool "Enable package source tree override" if DEVEL
+		help
+		  If enabled, you can force a package to use a git tree as source
+		  code instead of the normal tarball. Create a symlink 'git-src'
+		  in the package directory, pointing to the .git tree that you want
+		  to pull the source code from
 
 menuconfig TARGET_OPTIONS
 	bool "Target Options"  if DEVEL

@@ -17,3 +17,7 @@
 *.orig
 *.rej
 *~
+.#*
+*#
+.emacs.desktop*
+TAGS*~

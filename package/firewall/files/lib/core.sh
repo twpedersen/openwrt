@@ -30,11 +30,11 @@ fw_start() {
 	echo "Loading forwardings"
 	config_foreach fw_load_forwarding forwarding
 
-	echo "Loading redirects"
-	config_foreach fw_load_redirect redirect
-
 	echo "Loading rules"
 	config_foreach fw_load_rule rule
+
+	echo "Loading redirects"
+	config_foreach fw_load_redirect redirect
 
 	echo "Loading includes"
 	config_foreach fw_load_include include
@@ -67,6 +67,12 @@ fw_stop() {
 			[ -n "$i" ] && env -i ACTION=remove ZONE="$z" \
 				INTERFACE="$n" DEVICE="$i" /sbin/hotplug-call firewall
 		done
+
+		config_get i core "${z}_tcpmss"
+		[ "$i" == 1 ] && {
+			fw del i m FORWARD zone_${z}_MSSFIX
+			fw del i m zone_${z}_MSSFIX
+		}
 	done
 
 	fw_clear ACCEPT

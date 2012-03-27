@@ -41,9 +41,13 @@
 #include <sys/stat.h>
 #include <sys/reboot.h>
 #include <linux/reboot.h>
-#include "mtd-api.h"
+#include <mtd/mtd-user.h>
 #include "fis.h"
 #include "mtd.h"
+
+#ifndef MTDREFRESH
+#define MTDREFRESH	_IO('M', 50)
+#endif
 
 #define MAX_ARGS 8
 #define JFFS2_DEFAULT_DIR	"" /* directory name without /, empty means root dir */

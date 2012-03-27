@@ -2,6 +2,9 @@
 # Copyright (C) 2007 OpenWrt.org
 
 START=60
+
+SERVICE_USE_PID=1
+
 DNS_SERVERS=""
 DOMAIN=""
 
@@ -323,10 +326,10 @@ dhcp_domain_add() {
 	local cfg="$1"
 	local ip name names
 
-	config_get names "$cfg" name
+	config_get names "$cfg" name "$2"
 	[ -n "$names" ] || return 0
 
-	config_get ip "$cfg" ip
+	config_get ip "$cfg" ip "$3"
 	[ -n "$ip" ] || return 0
 
 	local oIFS="$IFS"; IFS="."; set -- $ip; IFS="$oIFS"
@@ -339,7 +342,7 @@ dhcp_domain_add() {
 			fqdn="$fqdn${DOMAIN:+.$DOMAIN}"
 
 		append args "-A /$fqdn/$ip"
-		
+
 		[ -n "$raddr" ] && {
 			append args "--ptr-record=$raddr,$fqdn"
 			raddr=""
@@ -357,16 +360,53 @@ dhcp_srv_add() {
 	[ -n "$target" ] || return 0
 
 	config_get port "$cfg" port
+	[ -n "$port" ] || return 0
 
-	local service="$srv,$target"
-	[ -n "$port" ] && service="$service,$port"
+	config_get class "$cfg" class
+	config_get weight "$cfg" weight
+
+	local service="$srv,$target,$port${class:+,$class${weight:+,$weight}}"
 
 	append args "-W $service"
+}
+
+dhcp_mx_add() {
+	local cfg="$1"
+	local domain relay pref
+
+	config_get domain "$cfg" domain
+	[ -n "$domain" ] || return 0
+
+	config_get relay "$cfg" relay
+	[ -n "$relay" ] || return 0
+
+	config_get pref "$cfg" pref 0
+
+	local service="$domain,$relay,$pref"
+
+	append args "--mx-host=$service"
+}
+
+dhcp_cname_add() {
+	local cfg="$1"
+	local cname target
+
+	config_get cname "$cfg" cname
+	[ -n "$cname" ] || return 0
+
+	config_get target "$cfg" target
+	[ -n "$target" ] || return 0
+
+	append args "--cname=${cname},${target}"
 }
 
 start() {
 	include /lib/network
 	scan_interfaces
+
+	local lanaddr
+	config_get lanaddr "lan" ipaddr
+
 	config_load dhcp
 
 	args=""
@@ -381,9 +421,17 @@ start() {
 	config_foreach dhcp_subscrid_add subscrid
 	config_foreach dhcp_domain_add domain
 	config_foreach dhcp_srv_add srvhost
+	config_foreach dhcp_mx_add mxhost
 	config_foreach dhcp_add dhcp
+	config_foreach dhcp_cname_add cname
 
-	/usr/sbin/dnsmasq $args && {
+	# add own hostname
+	[ -z "$lanaddr" ] || {
+		local hostname="$(uci_get system.@system[0].hostname)"
+		dhcp_domain_add "" "${hostname:-OpenWrt}" "$lanaddr"
+	}
+
+	service_start /usr/sbin/dnsmasq $args && {
 		rm -f /tmp/resolv.conf
 		[ -n "$DOMAIN" ] && echo "search $DOMAIN" >> /tmp/resolv.conf
 		DNS_SERVERS="$DNS_SERVERS 127.0.0.1"
@@ -394,10 +442,10 @@ start() {
 }
 
 stop() {
-	[ -f /tmp/resolv.conf ] && {
-		rm -f /tmp/resolv.conf
-		ln -s /tmp/resolv.conf.auto /tmp/resolv.conf
+	service_stop /usr/sbin/dnsmasq && {
+		[ -f /tmp/resolv.conf ] && {
+			rm -f /tmp/resolv.conf
+			ln -s /tmp/resolv.conf.auto /tmp/resolv.conf
+		}
 	}
-	service_kill dnsmasq /var/run/dnsmasq.pid
-	return 0
 }

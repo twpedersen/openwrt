@@ -213,6 +213,8 @@ define KernelPackage/octeon-i2c/description
   Kernel module to use the I2C master driver on Cavium Octeon
 endef
 
+$(eval $(call KernelPackage,octeon-i2c))
+
 
 I2C_TINY_USB_MODULES:= \
   CONFIG_I2C_TINY_USB:drivers/i2c/busses/i2c-tiny-usb
@@ -291,8 +293,13 @@ endef
 
 $(eval $(call KernelPackage,i2c-mux-pca9541))
 
+ifeq ($(strip $(call CompareKernelPatchVer,$(KERNEL_PATCHVER),ge,3.1.0)),1)
+GPIO_PCA953X_MODULES:= \
+  CONFIG_GPIO_PCA953X:drivers/gpio/gpio-pca953x
+else
 GPIO_PCA953X_MODULES:= \
   CONFIG_GPIO_PCA953X:drivers/gpio/pca953x
+endif
 
 define KernelPackage/pca953x
   $(call i2c_defaults,$(GPIO_PCA953X_MODULES),51)
@@ -306,8 +313,13 @@ endef
 
 $(eval $(call KernelPackage,pca953x))
 
+ifeq ($(strip $(call CompareKernelPatchVer,$(KERNEL_PATCHVER),ge,3.1.0)),1)
+GPIO_PCF857X_MODULES:= \
+  CONFIG_GPIO_PCF857X:drivers/gpio/gpio-pcf857x
+else
 GPIO_PCF857X_MODULES:= \
   CONFIG_GPIO_PCF857X:drivers/gpio/pcf857x
+endif
 
 define KernelPackage/pcf857x
   $(call i2c_defaults,$(GPIO_PCF857X_MODULES),51)
@@ -320,4 +332,3 @@ define KernelPackage/pcf857x/description
 endef
 
 $(eval $(call KernelPackage,pcf857x))
-$(eval $(call KernelPackage,octeon-i2c))
