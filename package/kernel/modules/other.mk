@@ -882,6 +882,7 @@ define KernelPackage/serial-8250
   	CONFIG_SERIAL_8250_MANY_PORTS=y \
   	CONFIG_SERIAL_8250_SHARE_IRQ=y
   FILES:=$(LINUX_DIR)/drivers/tty/serial/8250.ko
+  DEPENDS:=@(!(TARGET_atheros)||BROKEN)
 endef
 
 define KernelPackage/serial-8250/description
