@@ -31,15 +31,15 @@ How to build
    $ scripts/feeds install -d y bmx6
    $ scripts/feeds install -d y bmx6-uci-config
    $ scripts/feeds install -d y kmod-batman-adv
-   $ scripts/feeds install -d y olsrd
+   $ scripts/feeds install -d y olsrd-stable-git
 
  * copy desired platform config file
 
-   $ cp ./configs/atheros.conf .config
+   $ cp ./configs/atheros.config .config
 
    or
 
-   $ cp ./configs/x86-generic.conf .config
+   $ cp ./configs/x86-generic.config .config
 
  * check the buildsystem config
 
