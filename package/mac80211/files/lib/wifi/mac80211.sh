@@ -288,6 +288,7 @@ mac80211_generate_mac() {
 enable_mac80211() {
 	local device="$1"
 	config_get channel "$device" channel
+	config_get htmode "$device" htmode
 	config_get vifs "$device" vifs
 	config_get txpower "$device" txpower
 	config_get country "$device" country
@@ -395,7 +396,7 @@ enable_mac80211() {
 			# We attempt to set the channel for all interfaces, although
 			# mac80211 may not support it or the driver might not yet
 			# for ap mode this is handled by hostapd
-			[ -n "$fixed" -a -n "$channel" ] && iw dev "$ifname" set channel "$channel"
+			[ -n "$fixed" -a -n "$channel" ] && iw dev "$ifname" set channel "$channel" $htmode
 		fi
 
 		i=$(($i + 1))
