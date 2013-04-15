@@ -1,0 +1,22 @@
+#!/bin/bash
+# push an openwrt firmware update to all enumerated nodes
+
+source `dirname $0`/common.sh
+
+usage () {
+	echo "Usage: $0 <fw-update-image>"
+	exit 0
+}
+
+[ $# -ne 1 ] && usage
+[[ $1 != *update* ]] && usage
+
+FIRMWARE=$(basename ${1})
+HOSTS=`nenum`
+
+for host in $HOSTS; do
+	echo updating $host
+	nscp $1 root@${host}.local:/tmp/ || { echo "${host}: couldn't copy fw!"; continue; }
+	# hmm has to block, yet doesn't unblock after a reboot...
+	nssh root@${host}.local "/sbin/sysupgrade /tmp/${FIRMWARE}" || { echo "${host}: update failed!"; continue; }
+done
