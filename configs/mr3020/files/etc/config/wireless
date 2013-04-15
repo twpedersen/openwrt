@@ -12,7 +12,7 @@ config wifi-device  radio0
 config wifi-iface
 	option device   radio0
 	option ifname 	wlan0
-	option network  wlan
+	option network  br0
 	option mode     mesh
-	option ssid     thomesh
+	option mesh_id  thomesh
 	option encryption none

@@ -4,11 +4,10 @@ config 'interface' 'loopback'
 	option 'ipaddr' '127.0.0.1'
 	option 'netmask' '255.0.0.0'
 
-config 'interface' 'lan'
+config 'interface' 'br0'
 	option 'ifname' 'eth0'
-	option 'proto' 'dhcp'
-
-config 'interface' 'wlan'
-	option 'ifname' 'wlan0'
-	option 'proto' 'dhcp'
-
+	option 'type' 'bridge'
+	option stp    '1'
+	option 'proto' 'static'
+	option 'ipaddr' '10.10.10.11'
+	option 'netmask' '255.255.255.0'
