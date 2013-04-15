@@ -16,7 +16,7 @@ cp -f configs/$TARGET/config .config || error config for this target does not ex
 
 echo "Copying files"
 [ ! -e files ] && mkdir files
-[ -d configs/common/files ] && cp -rf configs/$TARGET/files/* files/ 2>/dev/null
+[ -d configs/common/files ] && cp -rf configs/common/files/* files/ 2>/dev/null
 [ -d configs/$TARGET/files ] && cp -rf configs/$TARGET/files/* files/ 2>/dev/null
 echo "HOST_BASE=$HOST_BASE" > files/etc/confvars 2>/dev/null
 
