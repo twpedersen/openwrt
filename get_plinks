@@ -1,0 +1,33 @@
+#!/bin/bash
+#
+# start with mapping just plinks for simplicity
+# 1. enumerate all nodes
+# 2. ping em to establish mpaths
+# 3. 
+source `dirname $0`/common.sh
+NODES=`nenum`
+MESHIF=wlan0
+
+# parse station dump input into lines of format
+# <local mac>,<peer mac>,<plink state>
+parse_plinks() {
+	local node=$1
+	local input=`cat`
+	# XXX: ash doesn't have arrays
+	local stas=(`echo "$input" | grep Station | cut -f2 -d' '`)
+	local plinks=(`echo "$input" | grep plink | awk '{print $3}'`)
+
+	i=0
+	count=${#stas[*]}
+	while [ $i -lt $count ]; do
+		echo "$node,${stas[$i]},${plinks[$i]}"
+		i=$[i+1]
+	done
+}
+
+for node in $NODES; do
+	# XXX: hope this is the right interface...
+	MAC=`nssh root@$node.local "iw $MESHIF info | grep addr | cut -f2 -d' '"`
+	STAS=`nssh root@$node.local "iw $MESHIF station dump"`
+	echo "$STAS" | parse_plinks $MAC
+done
