@@ -9,7 +9,7 @@ usage() {
 }
 
 # parse station dump input into lines of format
-# <local mac>,<peer mac>,<plink state>
+# link,<local mac>,<peer mac>,<plink state>
 parse_plinks() {
 	local node=$1
 	local input=`cat`
@@ -20,13 +20,29 @@ parse_plinks() {
 	i=0
 	count=${#stas[*]}
 	while [ $i -lt $count ]; do
-		echo "$node,${stas[$i]},${plinks[$i]}"
+		echo "link,$node,${stas[$i]},${plinks[$i]}"
 		i=$[i+1]
 	done
 }
 
+while getopts "lp" opt; do
+	case $opt in
+		l)
+			LINK=yes
+			;;
+		m)
+			MPATH=yes
+			;;
+	esac
+done
+
 for node in $NODES; do
 	MAC=`nssh root@$node.local "iw $MESHIF info | grep addr | cut -f2 -d' '"`
-	STAS=`nssh root@$node.local "iw $MESHIF station dump"`
-	echo "$STAS" | parse_plinks $MAC
+
+	if [ ! -z "$LINK" ]; then
+		STAS=`nssh root@$node.local "iw $MESHIF station dump"`
+		echo "$STAS" | parse_plinks $MAC
+	fi
+
+	# TODO: get mpaths
 done
